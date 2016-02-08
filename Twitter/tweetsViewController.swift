@@ -67,6 +67,9 @@ class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.retweetCount.text = String(tweet.retweetCount!)
         cell.favoriteCount.text = String(tweet.likeCount!)
         cell.timeDifference.text = returnDifference(tweet.createdAt!)
+        cell.replyButton.setImage(UIImage(named: "tweet_reply"), forState: .Normal)
+        cell.retweetButton.setImage(UIImage(named: "tweet_retweet"), forState: .Normal)
+        cell.likeButton.setImage(UIImage(named: "tweet_like"), forState: .Normal)
                 
         return cell
     }

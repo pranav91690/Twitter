@@ -23,7 +23,26 @@ class tweetCell: UITableViewCell {
 
     @IBOutlet weak var timeDifference: UILabel!
     
+    @IBAction func onReply(sender: AnyObject) {
+
+    }
     
+    @IBAction func onRetweet(sender: AnyObject) {
+        let count = Int(retweetCount.text!)
+        retweetCount.text = String(count! + 1)
+    }
+ 
+    @IBAction func onLIke(sender: AnyObject) {
+        let count = Int(favoriteCount.text!)
+        favoriteCount.text = String(count! + 1)
+    }
+    
+   
+    @IBOutlet weak var replyButton: UIButton!
+    
+    @IBOutlet weak var retweetButton: UIButton!
+    
+    @IBOutlet weak var likeButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -56,15 +56,6 @@ class TwitterClient: BDBOAuth1SessionManager {
                 
                 // Get Addiitonal Info about the tweets
                 let tweets = Tweet.tweetsWithArray((response as! [NSDictionary]))
-//                
-//                let tweetIdsResponse = response as! [NSDictionary]
-//                var tweetIdsArray = [String]()
-//                
-//                for tweet in tweetIdsResponse{
-//                    tweetIdsArray.append(tweet["id_str"] as! String)
-//                }
-//                
-//                let tweetIds = tweetIdsArray.joinWithSeparator(",")
                 
                 completion(tweets, error: nil)
                 
@@ -74,24 +65,17 @@ class TwitterClient: BDBOAuth1SessionManager {
         }
     }
     
-//    func tweetDetails(tweetIds : String , params : NSDictionary?, completion : ([Tweet]?, error : NSError?) -> ()){
-//        
-//        let endPoint = "https://api.twitter.com/1.1/statuses/lookup.json?id=\(tweetIds)"
-//
-//        GET(endPoint, parameters: params, progress: nil,
-//            success: { (operation : NSURLSessionDataTask?, response : AnyObject?) -> Void in
-//                
-//                print("Tweet Details Obtained")
-//                
-//                let tweets = Tweet.tweetsWithArray((response as! [NSDictionary]))
-//                
-//                completion(tweets, error : nil)
-//                
-//            }) { (operation : NSURLSessionDataTask?, error : NSError) -> Void in
-//                print(error)
-//                completion(nil, error : error)
-//        }
-//    }
+    // Post the Tweet to the User's timeline
+    func postTweet(tweetText : String, completion : (Tweet? , error : NSError?) -> ()){
+        let params = ["status" : tweetText]
+        POST("/1.1/statuses/update.json", parameters: params, progress: nil,
+            success: { (operation : NSURLSessionDataTask?, response : AnyObject?) -> Void in
+                let tweet = Tweet(dictionary: response as! NSDictionary)
+                completion(tweet, error: nil)
+            }) {(operation : NSURLSessionDataTask?, error : NSError) -> Void in
+                completion(nil, error: error)
+        }
+    }
     
     
     func openURL(url : NSURL){

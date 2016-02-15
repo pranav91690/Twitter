@@ -9,12 +9,19 @@
 import UIKit
 import AFNetworking
 
-class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, TweetCellDelegate, returnTweetDelegate {
     
     var tweets : [Tweet]!
+    var tweetIds : String!
+    var currentTweet: Tweet!
     
     @IBOutlet weak var tableView: UITableView!
-
+    
+    
+    @IBAction func createNewTweet(sender: AnyObject) {
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,17 +39,14 @@ class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
         
         
-        TwitterClient.sharedInstance.homeTimeLineWithCompletion(nil,
+        let apiInstance = TwitterClient.sharedInstance
+        
+        apiInstance.homeTimeLineWithCompletion(nil,
             completion: {(tweets,error) -> () in
                 if let tweets = tweets{
                     // get the Tweet Details
                     self.tweets = tweets
                     self.tableView.reloadData()
-                    
-//                    TwitterClient.sharedInstance.tweetDetails(tweets, params: nil, completion: {(tweets,error) -> () in
-//                            self.tweets = tweets
-//                            self.tableView.reloadData()
-//                        })
                 }
         })
     }
@@ -59,17 +63,8 @@ class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         let cell = tableView.dequeueReusableCellWithIdentifier("tweetCell", forIndexPath: indexPath) as! tweetCell
         
-        let tweet = tweets[indexPath.row]
-        
-        cell.userName.text = tweet.user!.name!
-        cell.tweetText.text = tweet.text!
-        cell.profilePic.setImageWithURL(NSURL(string : tweet.user!.profileImageUrl!)!)
-        cell.retweetCount.text = String(tweet.retweetCount!)
-        cell.favoriteCount.text = String(tweet.likeCount!)
-        cell.timeDifference.text = returnDifference(tweet.createdAt!)
-        cell.replyButton.setImage(UIImage(named: "tweet_reply"), forState: .Normal)
-        cell.retweetButton.setImage(UIImage(named: "tweet_retweet"), forState: .Normal)
-        cell.likeButton.setImage(UIImage(named: "tweet_like"), forState: .Normal)
+        cell.tweet = tweets[indexPath.row]
+        cell.delegate = self
                 
         return cell
     }
@@ -85,31 +80,44 @@ class tweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     
-    func returnDifference(createdAt : NSDate) -> String{
-        let seconds = NSDate().timeIntervalSinceDate(createdAt)
-        let minutes = Int(seconds/60)
-        
-        if(minutes > 59){
-            let hours = Int(minutes/60)
-            
-            if hours > 23{
-                let days = Int(hours/24)
-                return String("\(days)d")
-            }else{
-                return String("\(hours)h")
-            }
-        }else{
-            return String("\(minutes)m")
-        }
+    @objc func tweetCellProfileImageTapped(tCell: tweetCell) {
+        self.currentTweet = tCell.tweet
+        self.performSegueWithIdentifier("userDetailSegue", sender: self)
     }
-    /*
+    
+    func returnTweet(tweet: Tweet?) {
+        // Add the Tweet to this!!
+        if let tweet = tweet{
+            tweets.insert(tweet, atIndex: 0)
+            self.tableView.reloadData()
+        }
+        
+    }
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
+        super.prepareForSegue(segue, sender: sender)
+        
+        if (segue.identifier == "composeSegue"){
+            let vc = segue.destinationViewController as! composeViewController
+            vc.delegate = self
+        }else if (segue.identifier == "tweetDetailSegue") {
+            let cell = sender as! tweetCell
+            let indexPath = tableView.indexPathForCell(cell)
+            let tweet = tweets![indexPath!.row]
+            let vc = segue.destinationViewController as! tweetDetailViewController
+            
+            vc.tweet = tweet
+        } else if (segue.identifier == "userDetailSegue") {
+            let vc = segue.destinationViewController as! userDetailViewController
+            vc.user = currentTweet.user!
+        }
     }
-    */
+
 
 }
